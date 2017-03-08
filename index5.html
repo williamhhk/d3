@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>D3 World Map</title>
+<style>
+
+.chart div {
+  font: 15px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+
+</style>
+</style>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="https://d3js.org/topojson.v2.min.js"></script>
+  </head>
+  <body>
+	  
+	<svg class="chart"></svg>
+	<script type="text/javascript">
+
+		// d3.csv("./charting.csv", function(error, data) {
+		// console.log(data);
+		// });
+		var margin = {top: 20, right: 20, bottom: 30, left: 40},
+			width = 960 - margin.left - margin.right,
+			height = 500 - margin.top - margin.bottom;
+		
+		var parseDate = d3.timeParse("%Y%m%d")
+		console.log(parseDate('20170102'));
+
+		// set the ranges
+		var x = d3.scaleTime().range([0, width]);
+		var y = d3.scaleLinear().range([height, 0]);
+
+		// define the line
+		var valueline = d3.line()
+			.x(function(d) { return x(d.FinalDate); })
+			.y(function(d) { return y(d.count); });
+
+		// append the svg obgect to the body of the page
+		// appends a 'group' element to 'svg'
+		// moves the 'group' element to the top left margin
+		var svg = d3.select("body").append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+			.attr("transform",
+				"translate(" + margin.left + "," + margin.top + ")");		
+
+		// // Add the x Axis
+		// svg.append("g")
+		// 	.attr("transform", "translate(0," + height + ")")
+		// 	.call(d3.axisBottom(x));	
+
+		// // text label for the x axis
+		// svg.append("text")             
+		// 	.attr("transform",
+		// 			"translate(" + (width/2) + " ," + 
+		// 						(height + margin.top + 10) + ")")
+		// 	.style("text-anchor", "middle")
+		// 	.text("Date");
+
+		// // Add the y Axis
+		// svg.append("g")
+		// 	.call(d3.axisLeft(y));
+
+		// // text label for the y axis
+		// svg.append("text")
+		// 	.attr("transform", "rotate(-90)")
+		// 	.attr("y", 0 - margin.left)
+		// 	.attr("x",0 - (height / 2))
+		// 	.attr("dy", "1em")
+		// 	.style("text-anchor", "middle")
+		// 	.text("Value1");   			
+
+		// Get the data
+		d3.csv("data7.csv", function(error, data) {
+			console.log(data);
+			if (error) throw error;
+
+			// format the data
+			data.forEach(function(d) {
+				// console.log(d.AppFunction);
+				d.FinalDate = parseDate(d.FinalDate);
+				d.AppFunction = d.AppFunction;
+				d.count = +d.count;
+//				console.log(d);
+			});
+			// Scale the range of the data
+			x.domain(d3.extent(data, function(d) { return d.FinalDate; }));
+			y.domain([0, d3.max(data, function(d) { return d.count; })]);
+
+			// Add the valueline path.
+			svg.append("path")
+				.data([data])
+				.attr("class", "line")
+				.attr("d", valueline);
+
+			// Add the x Axis
+			svg.append("g")
+				.attr("transform", "translate(0," + height + ")")
+				.call(d3.axisBottom(x));
+
+			// text label for the x axis
+			svg.append("text")             
+				.attr("transform",
+						"translate(" + (width/2) + " ," + 
+									(height + margin.top + 10) + ")")
+				.style("text-anchor", "middle")
+				.text("Date");
+
+			// Add the y Axis
+			svg.append("g")
+				.call(d3.axisLeft(y));
+
+			// text label for the y axis
+			svg.append("text")
+				.attr("transform", "rotate(-90)")
+				.attr("y", 0 - margin.left)
+				.attr("x",0 - (height / 2))
+				.attr("dy", "1em")
+				.style("text-anchor", "middle")
+				.text("Value"); 
+		});
+
+    </script>
+  </body>
+</html>
